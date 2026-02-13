@@ -1,0 +1,62 @@
+---
+import { getLiveCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+
+const { tag } = Astro.params;
+const { entries: allPosts } = await getLiveCollection("blog");
+
+if (!tag) {
+  return Astro.redirect("/404");
+}
+
+const posts = (allPosts || []).filter(
+  (p) =>
+    p.data.tags &&
+    p.data.tags
+      .split(",")
+      .map((t: string) => t.trim())
+      .includes(tag),
+);
+
+if (posts.length === 0) {
+  return Astro.redirect("/404");
+}
+---
+
+<Layout title={`Tag: #${tag}`}>
+  <main class="my-16 flex flex-col gap-8">
+    <header class="mb-8">
+      <h1
+        class="text-xs font-bold uppercase tracking-widest text-text-mute mb-2"
+      >
+        Tag
+      </h1>
+      <h2 class="text-5xl font-extrabold tracking-tighter">#{tag}</h2>
+    </header>
+
+    <div class="flex flex-col gap-12">
+      {
+        posts.map((post: any) => (
+          <article class="flex flex-col gap-2">
+            <a href={`/${post.data.slug}`} class="group">
+              <div class="flex flex-row gap-4 items-center text-xs font-bold uppercase tracking-widest text-text-mute">
+                <time datetime={new Date(post.data.published_at).toISOString()}>
+                  {new Date(post.data.published_at).toLocaleDateString()}
+                </time>
+                {post.data.category_name && (
+                  <span class="text-ui">{post.data.category_name}</span>
+                )}
+              </div>
+              <h3 class="text-3xl font-bold my-3 group-hover:text-ui transition-colors">
+                {post.data.title}
+              </h3>
+              <p class="text-text-mute leading-relaxed font-medium">
+                {post.data.description || "No description available."}
+              </p>
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </main>
+</Layout>

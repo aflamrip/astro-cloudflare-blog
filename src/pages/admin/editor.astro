@@ -1,0 +1,58 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PostEditor from "../../components/PostEditor.astro";
+import { env } from "cloudflare:workers";
+
+const id = Astro.url.searchParams.get("id");
+const { DB: db } = env;
+let initialData = {
+  title: "",
+  content: "",
+  description: "",
+  id: "",
+  slug: "",
+  categoryName: null as string | null,
+  tags: [] as string[],
+};
+
+if (id && db) {
+  const result = (await db
+    .prepare(
+      `
+    SELECT 
+      p.*, 
+      c.name as category_name,
+      (SELECT GROUP_CONCAT(t.name) FROM tags t JOIN post_tags pt ON t.id = pt.tag_id WHERE pt.post_id = p.id) as tags
+    FROM posts p 
+    LEFT JOIN categories c ON p.category_id = c.id
+    WHERE p.id = ?
+  `,
+    )
+    .bind(id)
+    .first()) as any;
+
+  if (result) {
+    initialData = {
+      title: result.title,
+      content: result.content,
+      description: result.description,
+      slug: result.slug,
+      id: String(result.id),
+      categoryName: result.category_name,
+      tags: result.tags ? result.tags.split(",") : [],
+    };
+  }
+}
+---
+
+<Layout title="Write New Post">
+  <PostEditor
+    initialTitle={initialData.title}
+    initialContent={initialData.content}
+    initialDescription={initialData.description}
+    initialSlug={initialData.slug}
+    initialCategory={initialData.categoryName}
+    initialTags={initialData.tags}
+    postId={initialData.id}
+  />
+</Layout>

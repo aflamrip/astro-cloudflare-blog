@@ -1,0 +1,669 @@
+---
+interface Props {
+  initialTitle?: string;
+  initialContent?: string;
+  initialDescription?: string;
+  initialSlug?: string;
+  initialCategory?: number | null | string;
+  initialTags?: string[];
+  postId?: string;
+}
+
+const {
+  initialTitle = "",
+  initialContent = "",
+  initialDescription = "",
+  initialSlug = "",
+  initialCategory = null,
+  initialTags = [],
+  postId = "",
+} = Astro.props;
+---
+
+<div id="post-editor-root" class="min-h-screen bg-bg">
+  <!-- Header / Fixed Navigation -->
+  <header
+    class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 py-4 md:px-12 bg-bg/80 backdrop-blur-md border-b border-border/10"
+  >
+    <div class="flex items-center gap-4">
+      <a
+        href="/"
+        class="flex items-center gap-2 text-text-mute hover:text-text transition-all group"
+      >
+        <div class="p-2 rounded-full group-hover:bg-border/30 transition-all">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg
+          >
+        </div>
+        <span
+          class="text-xs font-bold uppercase tracking-widest hidden sm:block"
+          >Exit</span
+        >
+      </a>
+    </div>
+
+    <div class="flex items-center gap-4 md:gap-6">
+      <button
+        id="publish-btn"
+        class="group relative px-6 py-2 bg-text text-bg rounded-full text-xs font-black uppercase tracking-widest overflow-hidden transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <span id="btn-text" class="relative z-10">Publish</span>
+        <div
+          class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"
+        >
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Canvas -->
+  <main>
+    <div class="space-y-2">
+      <div class="space-y-1 mb-8">
+        <div
+          class="group flex items-center min-h-[34px] transition-colors hover:bg-black/5 dark:hover:bg-white/5 px-2 rounded-sm -ml-2"
+        >
+          <div class="flex items-center gap-2 w-32 shrink-0 text-text-mute">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path
+                d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+              ></path><path
+                d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+              ></path></svg
+            >
+            <span class="text-sm">Slug</span>
+          </div>
+          <input
+            id="editor-slug"
+            type="text"
+            value={initialSlug}
+            placeholder="Empty"
+            class="px-2 bg-transparent border-none focus:ring-0 outline-none p-0 text-sm font-mono text-text w-full placeholder:text-text-mute/30"
+          />
+        </div>
+
+        <div
+          class="group flex items-center min-h-[34px] transition-colors hover:bg-black/5 dark:hover:bg-white/5 px-2 rounded-sm -ml-2 relative"
+        >
+          <div class="flex items-center gap-2 w-32 shrink-0 text-text-mute">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path
+                d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"
+              ></path></svg
+            >
+            <span class="text-sm">Category</span>
+          </div>
+          <input
+            id="category-input"
+            type="text"
+            placeholder="Empty"
+            value={initialCategory || ""}
+            class="px-2 bg-transparent border-none focus:ring-0 outline-none p-0 text-sm text-text w-full placeholder:text-text-mute/30"
+            autocomplete="off"
+          />
+          <div
+            id="category-dropdown"
+            class="absolute top-full left-32 right-0 mt-1 bg-bg border border-border/50 rounded-lg shadow-xl hidden z-50 max-h-48 overflow-y-auto backdrop-blur-xl p-1"
+          >
+          </div>
+        </div>
+
+        <div
+          class="group flex items-start py-1.5 transition-colors hover:bg-black/5 dark:hover:bg-white/5 px-2 rounded-sm -ml-2 relative"
+        >
+          <div
+            class="flex items-center gap-2 w-32 shrink-0 text-text-mute mt-1"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path
+                d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"
+              ></path><path d="M7 7h.01"></path></svg
+            >
+            <span class="text-sm">Tags</span>
+          </div>
+          <div class="flex-1 flex flex-wrap gap-1.5 items-center">
+            <div id="tags-list" class="flex flex-wrap gap-1.5">
+              {
+                initialTags.map((tag) => (
+                  <span class="tag-pill px-2 py-0.5 bg-theme-color/10 text-theme-color rounded-md text-xs font-medium flex items-center gap-1 group/tag cursor-default">
+                    {tag}
+                    <button class="remove-tag opacity-40 hover:opacity-100 transition-opacity">
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M18 6 6 18M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </span>
+                ))
+              }
+            </div>
+            <input
+              id="tags-input"
+              placeholder="Add a tag..."
+              class="bg-transparent border-none focus:ring-0 outline-none p-0 text-sm flex-1 min-w-[100px] placeholder:text-text-mute/30"
+            />
+          </div>
+          <div
+            id="tags-dropdown"
+            class="absolute top-full left-32 right-0 mt-1 bg-bg border border-border/50 rounded-lg shadow-xl hidden z-50 max-h-48 overflow-y-auto backdrop-blur-xl p-1"
+          >
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <textarea
+          id="editor-title"
+          placeholder="Untitled"
+          rows="1"
+          class="w-full bg-transparent text-6xl font-bold border-none focus:ring-0 outline-none tracking-tight resize-none overflow-hidden placeholder:text-text-mute/20"
+          oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"
+          >{initialTitle}</textarea
+        >
+
+        <textarea
+          id="editor-description"
+          placeholder="Add a description..."
+          rows="1"
+          class="w-full bg-transparent text-2xl text-text-mute border-none focus:ring-0 outline-none resize-none overflow-hidden placeholder:text-text-mute/20 leading-relaxed"
+          oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"
+          >{initialDescription}</textarea
+        >
+      </div>
+    </div>
+
+    <!-- Tiptap Canvas -->
+    <div
+      id="editor-canvas"
+      class="prose max-w-none prose-lg md:prose-xl selection:bg-theme-color/20 cursor-text group mt-12"
+    >
+      <div id="tiptap-editor" class="min-h-[600px] outline-none"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Hidden inputs for data passing -->
+<input type="hidden" id="post-id" value={postId} />
+<div id="initial-content" style="display: none;" set:html={initialContent} />
+
+<style is:global>
+  /* Standard Tiptap/ProseMirror Styles */
+  .tiptap.ProseMirror {
+    min-height: 600px;
+    outline: none;
+  }
+
+  /* Modern Placeholder styling */
+  .tiptap p.is-editor-empty:first-child::before {
+    color: var(--tx-2);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    opacity: 0.3;
+    font-style: italic;
+  }
+
+  /* Smooth scroll for the entire editor */
+  #post-editor-root {
+    scroll-behavior: smooth;
+  }
+
+  .tag-pill {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  @keyframes scaleIn {
+    from {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .dropdown-item {
+    width: 100%;
+    text-align: left;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    border-radius: 0.5rem;
+    transition-property:
+      color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    color: color-mix(in srgb, var(--tx) 80%, transparent);
+  }
+
+  .dropdown-item:hover {
+    background-color: color-mix(in srgb, var(--border) 30%, transparent);
+  }
+</style>
+
+<script>
+  import { Editor } from "@tiptap/core";
+  import StarterKit from "@tiptap/starter-kit";
+  import Image from "@tiptap/extension-image";
+  import Placeholder from "@tiptap/extension-placeholder";
+  import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+  import { common, createLowlight } from "lowlight";
+  import { pinyin } from "pinyin-pro";
+
+  const lowlight = createLowlight(common);
+
+  let editorInstance: Editor | null = null;
+  let isSaving = false;
+  let isSlugManuallyEdited = false;
+  let currentTags: string[] = [];
+  let allCategories: any[] = [];
+  let allTags: any[] = [];
+
+  async function initEditor() {
+    const { actions } = await import("astro:actions");
+
+    // Fetch initial data
+    try {
+      const { data: cats } = await actions.getCategories();
+      allCategories = cats || [];
+      const { data: tags } = await actions.getTags();
+      allTags = tags || [];
+    } catch (e) {
+      console.error("Failed to fetch taxonomy:", e);
+    }
+
+    // Reset state for new page load
+    currentTags = [];
+
+    const root = document.getElementById("post-editor-root");
+    if (!root) return;
+
+    // Elements
+    const titleEl = document.getElementById(
+      "editor-title",
+    ) as HTMLTextAreaElement;
+    const descEl = document.getElementById(
+      "editor-description",
+    ) as HTMLTextAreaElement;
+    const slugEl = document.getElementById("editor-slug") as HTMLInputElement;
+    const categoryInput = document.getElementById(
+      "category-input",
+    ) as HTMLInputElement;
+    const categoryDropdown = document.getElementById(
+      "category-dropdown",
+    ) as HTMLDivElement;
+    const tagsInput = document.getElementById("tags-input") as HTMLInputElement;
+    const tagsDropdown = document.getElementById(
+      "tags-dropdown",
+    ) as HTMLDivElement;
+    const tagsListDiv = document.getElementById("tags-list") as HTMLDivElement;
+    const publishBtn = document.getElementById(
+      "publish-btn",
+    ) as HTMLButtonElement;
+    const btnText = document.getElementById("btn-text");
+    const statusContainer = document.getElementById("status-container");
+    const statusText = document.getElementById("status-text");
+    const statusDot = document.getElementById("status-dot");
+    const tiptapContainer = document.getElementById("tiptap-editor");
+    const canvas = document.getElementById("editor-canvas");
+    const postIdEl = document.getElementById("post-id") as HTMLInputElement;
+    const contentEl = document.getElementById("initial-content");
+
+    if (!tiptapContainer || !titleEl || !descEl || !slugEl) return;
+
+    // Initialize Tags from existing pills
+    const initialTagsPills = document.querySelectorAll(".tag-pill");
+    initialTagsPills.forEach((pill) => {
+      const name = pill.childNodes[0]?.textContent?.trim() || "";
+      if (name && !currentTags.includes(name)) {
+        currentTags.push(name);
+      }
+      pill.querySelector(".remove-tag")?.addEventListener("click", () => {
+        const tagName = pill.childNodes[0]?.textContent?.trim() || "";
+        currentTags = currentTags.filter((t) => t !== tagName);
+        pill.remove();
+      });
+    });
+
+    // Initialize Tiptap
+    if (editorInstance) {
+      editorInstance.destroy();
+    }
+    tiptapContainer.innerHTML = "";
+
+    editorInstance = new Editor({
+      element: tiptapContainer,
+      extensions: [
+        StarterKit.configure({
+          heading: { levels: [2, 3] },
+          codeBlock: false,
+        }),
+        CodeBlockLowlight.configure({ lowlight }),
+        Placeholder.configure({
+          placeholder: "Start writing your story...",
+          includeChildren: true,
+        }),
+        Image.configure({
+          HTMLAttributes: { class: "rounded-2xl" },
+        }),
+      ],
+      content: contentEl ? contentEl.innerHTML : "",
+      editorProps: {
+        attributes: { class: "focus:outline-none min-h-[600px] py-4" },
+      },
+    });
+
+    // Category Logic
+    const renderCategoryDropdown = (filter = "") => {
+      const filtered = (allCategories || []).filter((c) =>
+        c.name.toLowerCase().includes(filter.toLowerCase()),
+      );
+      categoryDropdown.innerHTML = "";
+
+      if (filtered.length > 0) {
+        filtered.forEach((cat) => {
+          const btn = document.createElement("button");
+          btn.className = "dropdown-item";
+          btn.textContent = cat.name;
+          btn.onclick = () => {
+            categoryInput.value = cat.name;
+            categoryDropdown.classList.add("hidden");
+          };
+          categoryDropdown.appendChild(btn);
+        });
+      }
+
+      if (
+        filter &&
+        !filtered.find((c) => c.name.toLowerCase() === filter.toLowerCase())
+      ) {
+        const createBtn = document.createElement("button");
+        createBtn.className = "dropdown-item font-bold text-ui";
+        createBtn.textContent = `Create "${filter}"`;
+        createBtn.onclick = () => {
+          categoryInput.value = filter;
+          categoryDropdown.classList.add("hidden");
+        };
+        categoryDropdown.appendChild(createBtn);
+      }
+
+      categoryDropdown.classList.toggle(
+        "hidden",
+        categoryDropdown.children.length === 0,
+      );
+    };
+
+    categoryInput.addEventListener("input", (e) =>
+      renderCategoryDropdown((e.target as HTMLInputElement).value),
+    );
+    categoryInput.addEventListener("focus", () =>
+      renderCategoryDropdown(categoryInput.value),
+    );
+
+    // Tags Logic
+    const renderTagsDropdown = (filter = "") => {
+      // Filter out tags already added
+      const filtered = (allTags || []).filter(
+        (t) =>
+          t.name.toLowerCase().includes(filter.toLowerCase()) &&
+          !currentTags.includes(t.name),
+      );
+      tagsDropdown.innerHTML = "";
+
+      if (filtered.length > 0) {
+        filtered.forEach((tag) => {
+          const btn = document.createElement("button");
+          btn.className = "dropdown-item";
+          btn.textContent = tag.name;
+          btn.onclick = () => {
+            addTag(tag.name);
+            tagsDropdown.classList.add("hidden");
+          };
+          tagsDropdown.appendChild(btn);
+        });
+      }
+
+      if (
+        filter &&
+        !filtered.find((t) => t.name.toLowerCase() === filter.toLowerCase()) &&
+        !currentTags.includes(filter)
+      ) {
+        const createBtn = document.createElement("button");
+        createBtn.className = "dropdown-item font-bold text-ui";
+        createBtn.textContent = `Add "${filter}"`;
+        createBtn.onclick = () => {
+          addTag(filter);
+          tagsDropdown.classList.add("hidden");
+        };
+        tagsDropdown.appendChild(createBtn);
+      }
+
+      tagsDropdown.classList.toggle(
+        "hidden",
+        tagsDropdown.children.length === 0,
+      );
+    };
+
+    tagsInput.addEventListener("input", (e) =>
+      renderTagsDropdown((e.target as HTMLInputElement).value),
+    );
+    tagsInput.addEventListener("focus", () =>
+      renderTagsDropdown(tagsInput.value),
+    );
+
+    document.addEventListener("click", (e) => {
+      const target = e.target as Node;
+      if (
+        !categoryInput.contains(target) &&
+        !categoryDropdown.contains(target)
+      ) {
+        categoryDropdown.classList.add("hidden");
+      }
+      if (!tagsInput.contains(target) && !tagsDropdown.contains(target)) {
+        tagsDropdown.classList.add("hidden");
+      }
+    });
+
+    const addTag = (name: string) => {
+      name = name.trim();
+      if (!name || currentTags.includes(name)) return;
+      currentTags.push(name);
+
+      const pill = document.createElement("span");
+      pill.className =
+        "tag-pill px-2 py-0.5 bg-theme-color/10 text-theme-color rounded-md text-xs font-medium flex items-center gap-1 group/tag cursor-default";
+      pill.innerHTML = `
+        ${name} 
+        <button class="remove-tag opacity-40 hover:opacity-100 transition-opacity">
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      `;
+
+      pill.querySelector(".remove-tag")?.addEventListener("click", () => {
+        currentTags = currentTags.filter((t) => t !== name);
+        pill.remove();
+      });
+
+      tagsListDiv.appendChild(pill);
+      tagsInput.value = "";
+      tagsDropdown.classList.add("hidden");
+    };
+
+    tagsInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === ",") {
+        e.preventDefault();
+        addTag(tagsInput.value);
+      } else if (
+        e.key === "Backspace" &&
+        !tagsInput.value &&
+        currentTags.length > 0
+      ) {
+        const last = tagsListDiv.lastElementChild;
+        if (last) {
+          const tagName = last.textContent?.trim();
+          currentTags = currentTags.filter((t) => t !== tagName);
+          last.remove();
+        }
+      }
+    });
+
+    // Utilities
+    const autoResize = (el: HTMLTextAreaElement) => {
+      if (!el) return;
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
+    };
+
+    // Slug Auto Generator
+    titleEl.addEventListener("input", () => {
+      autoResize(titleEl);
+      if (!isSlugManuallyEdited) {
+        const val = titleEl.value;
+        if (!val) {
+          slugEl.value = "";
+          return;
+        }
+        const slugified = val
+          .replace(
+            /[\u4e00-\u9fa5]/g,
+            (match) => pinyin(match, { toneType: "none" }) + " ",
+          )
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+        slugEl.value = slugified;
+      }
+    });
+
+    descEl.addEventListener("input", () => autoResize(descEl));
+    slugEl.addEventListener("input", () => (isSlugManuallyEdited = true));
+
+    canvas?.addEventListener("click", (e) => {
+      if (e.target === canvas || e.target === tiptapContainer) {
+        editorInstance?.commands.focus();
+      }
+    });
+
+    // Keyboard Shortcuts
+    const handleKeydown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        saveAction();
+      }
+    };
+    window.addEventListener("keydown", handleKeydown);
+
+    // Save Logic
+    async function saveAction() {
+      if (isSaving || !titleEl.value) {
+        if (!titleEl.value) alert("Title is required");
+        return;
+      }
+
+      isSaving = true;
+      publishBtn.disabled = true;
+      if (btnText) btnText.textContent = "...";
+
+      if (statusContainer && statusText && statusDot) {
+        statusContainer.classList.remove("opacity-0");
+        statusText.textContent = "Syncing...";
+        statusDot.classList.add("animate-pulse");
+      }
+
+      try {
+        const result = await actions.savePost({
+          id: postIdEl.value || undefined,
+          title: titleEl.value,
+          description: descEl.value,
+          content: editorInstance?.getHTML() || "",
+          slug: slugEl.value,
+          category: categoryInput.value || undefined,
+          tags: currentTags,
+        });
+
+        if (!result.error) {
+          setTimeout(() => (window.location.href = "/"), 500);
+        } else {
+          alert(`Save failed: ${result.error.message}`);
+          isSaving = false;
+          publishBtn.disabled = false;
+          if (btnText) btnText.textContent = "Publish";
+        }
+      } catch (err) {
+        alert("Network error");
+        isSaving = false;
+        publishBtn.disabled = false;
+        if (btnText) btnText.textContent = "Publish";
+      }
+    }
+
+    publishBtn.addEventListener("click", saveAction);
+    autoResize(titleEl);
+    autoResize(descEl);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+      if (editorInstance) {
+        editorInstance.destroy();
+        editorInstance = null;
+      }
+    };
+  }
+
+  document.addEventListener("astro:page-load", () => {
+    let cleanup: any;
+    initEditor().then((c) => (cleanup = c));
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        if (cleanup) cleanup();
+      },
+      { once: true },
+    );
+  });
+</script>

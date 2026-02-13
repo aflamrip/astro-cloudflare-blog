@@ -1,0 +1,46 @@
+---
+import "@/styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import Themetoggle from "@/components/Themetoggle.astro";
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover"
+    />
+    <meta name="generator" content={Astro.generator} />
+    <script is:inline>
+      const applyTheme = () => {
+        const stored = localStorage.getItem("theme");
+        const theme =
+          stored ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      };
+
+      applyTheme();
+      document.addEventListener("astro:after-swap", applyTheme);
+    </script>
+
+    <title>{title || "CloudBlog"}</title>
+    <ClientRouter />
+  </head>
+  <body>
+    <header class="flex justify-between items-center my-16">
+      <nav class="flex gap-4 items-center">
+        <a href="/" class="text-3xl">CloudBlog</a>
+        <a href="/admin/editor" class="text-(--color-text-mute)">Editor</a>
+      </nav>
+      <Themetoggle />
+    </header>
+    <slot />
+  </body>
+</html>

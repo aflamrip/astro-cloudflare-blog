@@ -1,0 +1,61 @@
+---
+import { getLiveCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+
+const { slug } = Astro.params;
+const { entries: allPosts } = await getLiveCollection("blog");
+
+// Filter posts for this category
+const posts = (allPosts || []).filter(
+  (p: any) => p.data.category_slug === slug,
+);
+
+if (posts.length === 0) {
+  return Astro.redirect("/404");
+}
+
+const categoryName = posts[0].data.category_name;
+const category = { name: categoryName, slug };
+---
+
+<Layout title={`Category: ${category.name}`}>
+  <main class="my-16 flex flex-col gap-8">
+    <header class="mb-8">
+      <h1
+        class="text-xs font-bold uppercase tracking-widest text-text-mute mb-2"
+      >
+        Category
+      </h1>
+      <h2 class="text-5xl font-extrabold tracking-tighter">{category.name}</h2>
+    </header>
+
+    <div class="flex flex-col gap-12">
+      {
+        posts.map((post: any) => (
+          <article class="flex flex-col gap-2">
+            <a href={`/${post.data.slug}`} class="group">
+              <div class="flex flex-row gap-4 items-center text-xs font-bold uppercase tracking-widest text-text-mute">
+                <time datetime={new Date(post.data.published_at).toISOString()}>
+                  {new Date(post.data.published_at).toLocaleDateString()}
+                </time>
+                {post.data.tags && (
+                  <div class="flex flex-row gap-2 text-ui">
+                    {post.data.tags.split(",").map((tag: string) => (
+                      <span>#{tag.trim()}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <h3 class="text-3xl font-bold my-3 group-hover:text-ui transition-colors">
+                {post.data.title}
+              </h3>
+              <p class="text-text-mute leading-relaxed font-medium">
+                {post.data.description || "No description available."}
+              </p>
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </main>
+</Layout>

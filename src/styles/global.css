@@ -1,0 +1,145 @@
+@import "tailwindcss";
+@plugin '@tailwindcss/typography';
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@layer base {
+  html {
+    @apply max-w-2xl mx-auto p-4 md:p-0 subpixel-antialiased bg-(--color-bg) text-(--color-text);
+  }
+}
+
+@theme inline {
+  --theme-color: var(--ui);
+  --color-bg: var(--bg);
+  --color-text: var(--tx);
+  --color-text-mute: var(--tx-2);
+  --color-border: var(--br);
+}
+
+:root {
+  --ui: #0066cc; /* 极简黑白风格 */
+  --bg: #ffffff;
+  --tx: #111111;
+  --tx-2: #6e6e73;
+  --br: #eeeeee;
+}
+
+[data-theme="dark"] {
+  --ui: #0066cc; /* 反转色 */
+  --bg: #0d0d0d; /* 苹果暗色控制台背景 */
+  --tx: #ececec;
+  --tx-2: #808080;
+  --br: #262626;
+}
+
+/* Tailwind Typography Customization */
+.prose {
+  --tw-prose-body: var(--tx);
+  --tw-prose-headings: var(--tx);
+  --tw-prose-lead: var(--tx-2);
+  --tw-prose-links: var(--ui);
+  --tw-prose-bold: var(--tx);
+  --tw-prose-counters: var(--ui);
+  --tw-prose-bullets: var(--ui);
+  --tw-prose-hr: var(--br);
+  --tw-prose-quotes: var(--tx);
+  --tw-prose-quote-borders: var(--ui);
+  --tw-prose-captions: var(--tx-2);
+  --tw-prose-code: var(--tx);
+  --tw-prose-pre-code: var(--tx);
+  --tw-prose-pre-bg: var(--br);
+  --tw-prose-th-borders: var(--ui);
+  --tw-prose-td-borders: var(--br);
+}
+
+/* Cleanup for code block appearance */
+.prose :where(code):not(:where([class~="not-prose"] *))::before,
+.prose :where(code):not(:where([class~="not-prose"] *))::after {
+  content: "";
+}
+
+.prose pre {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .prose {
+  --tw-prose-pre-bg: #1a1a1a;
+  --tw-prose-pre-code: var(--tx);
+}
+
+/* Syntax Highlighting (GitHub Light Inspired) */
+.prose .hljs-comment,
+.prose .hljs-quote {
+  color: #6a737d;
+  font-style: italic;
+}
+.prose .hljs-keyword,
+.prose .hljs-selector-tag {
+  color: #d73a49;
+}
+.prose .hljs-string,
+.prose .hljs-doctag,
+.prose .hljs-meta .hljs-string {
+  color: #032f62;
+}
+.prose .hljs-title,
+.prose .hljs-section,
+.prose .hljs-selector-id {
+  color: #6f42c1;
+}
+.prose .hljs-variable,
+.prose .hljs-template-variable {
+  color: #e36209;
+}
+.prose .hljs-type,
+.prose .hljs-number,
+.prose .hljs-literal,
+.prose .hljs-symbol,
+.prose .hljs-bullet {
+  color: #005cc5;
+}
+.prose .hljs-attr,
+.prose .hljs-attribute {
+  color: #005cc5;
+}
+.prose .hljs-meta {
+  color: #24292e;
+}
+
+/* Dark Mode (Atom One Dark Inspired) */
+[data-theme="dark"] .prose .hljs-comment,
+[data-theme="dark"] .prose .hljs-quote {
+  color: #5c6370;
+}
+[data-theme="dark"] .prose .hljs-keyword,
+[data-theme="dark"] .prose .hljs-selector-tag {
+  color: #c678dd;
+}
+[data-theme="dark"] .prose .hljs-string,
+[data-theme="dark"] .prose .hljs-doctag,
+[data-theme="dark"] .prose .hljs-meta .hljs-string {
+  color: #98c379;
+}
+[data-theme="dark"] .prose .hljs-title,
+[data-theme="dark"] .prose .hljs-section,
+[data-theme="dark"] .prose .hljs-selector-id {
+  color: #61afef;
+}
+[data-theme="dark"] .prose .hljs-variable,
+[data-theme="dark"] .prose .hljs-template-variable {
+  color: #d19a66;
+}
+[data-theme="dark"] .prose .hljs-type,
+[data-theme="dark"] .prose .hljs-number,
+[data-theme="dark"] .prose .hljs-literal,
+[data-theme="dark"] .prose .hljs-symbol,
+[data-theme="dark"] .prose .hljs-bullet {
+  color: #d19a66;
+}
+[data-theme="dark"] .prose .hljs-attr,
+[data-theme="dark"] .prose .hljs-attribute {
+  color: #d19a66;
+}
+[data-theme="dark"] .prose .hljs-meta {
+  color: #abb2bf;
+}

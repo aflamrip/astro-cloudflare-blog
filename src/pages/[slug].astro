@@ -1,0 +1,117 @@
+---
+import { getLiveCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+
+const { slug } = Astro.params;
+const { entries: allPosts } = await getLiveCollection("blog");
+const post = (allPosts || []).find((p: any) => p.data.slug === slug);
+
+// If not found, Astro will automatically handle the 404 if we don't return anything or use Astro.response
+if (!post) {
+  return Astro.redirect("/404");
+}
+
+const date = post.data.published_at
+  ? new Date(post.data.published_at)
+  : new Date();
+---
+
+<Layout title={post?.data?.title || "Post"}>
+  {
+    post ? (
+      <article class="mb-32">
+        <header>
+          <div class="mb-8">
+            <a
+              href={`/admin/editor?id=${post.id || post.data.id}`}
+              class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-text-mute hover:text-theme-color transition-colors group"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="group-hover:rotate-12 transition-transform"
+              >
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+              Edit Article
+            </a>
+          </div>
+          <h1 class="text-4xl md:text-6xl">{post.data.title}</h1>
+          <p class="font-thin text-2xl my-4">
+            {post.data.description || "No description available."}
+          </p>
+          <div class="flex gap-6 flex-wrap mb-10 items-center">
+            <time
+              datetime={date.toISOString()}
+              class="uppercase tracking-widest "
+            >
+              {date.toLocaleDateString(undefined, {
+                dateStyle: "long",
+              })}
+            </time>
+
+            {post.data.category_name && (
+              <a
+                href={`/category/${post.data.category_slug}`}
+                class="text-(--color-text-mute)"
+              >
+                {post.data.category_name}
+              </a>
+            )}
+
+            {post.data.tags && (
+              <div class="tags flex gap-3 flex-wrap">
+                {post.data.tags.split(",").map((t: string) => (
+                  <a
+                    href={`/tags/${t.trim()}`}
+                    class="font-bold text-(--theme-color)"
+                  >
+                    #{t.trim()}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </header>
+        <div
+          class="prose max-w-none prose-lg md:prose-xl"
+          set:html={post.data.content}
+        />
+      </article>
+    ) : (
+      <div class="py-20 text-center">
+        <h1 class="text-4xl font-bold">Post Not Found</h1>
+        <p class="mt-4 text-text-mute">
+          The article you're looking for doesn't exist.
+        </p>
+        <a href="/" class="mt-8 inline-block text-theme-color underline">
+          Return to Home
+        </a>
+      </div>
+    )
+  }
+</Layout>
+
+<script>
+  import hljs from "highlight.js";
+
+  function highlightCode() {
+    document.querySelectorAll("pre code").forEach((block) => {
+      hljs.highlightElement(block as HTMLElement);
+    });
+  }
+
+  // Run on initial load
+  highlightCode();
+
+  // Run after Astro view transitions
+  document.addEventListener("astro:page-load", highlightCode);
+</script>

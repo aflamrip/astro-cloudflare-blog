@@ -1,0 +1,127 @@
+---
+import { getLiveCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
+
+const { page: pageParam } = Astro.params;
+const pageSize = 12;
+
+// Parse current page number
+const currentPage = pageParam ? parseInt(pageParam) : 1;
+
+if (isNaN(currentPage) || currentPage < 1) {
+  return Astro.redirect("/404");
+}
+
+const { entries: allPosts, error } = await getLiveCollection("blog");
+
+if (error) {
+  console.error("加载实时博客失败:", error.message);
+}
+
+// Sort by date
+const sortedPosts = (allPosts || []).sort((a: any, b: any) => {
+  const dateA = new Date(a.data.published_at);
+  const dateB = new Date(b.data.published_at);
+  return dateB.getTime() - dateA.getTime();
+});
+
+const totalItems = sortedPosts.length;
+const lastPage = Math.ceil(totalItems / pageSize);
+
+// Get items for current page
+const start = (currentPage - 1) * pageSize;
+const end = start + pageSize;
+const pagedData = sortedPosts.slice(start, end);
+
+// Redirect to 404 if page is out of bounds (unless it's the first page)
+if (currentPage > lastPage && lastPage > 0) {
+  return Astro.redirect("/404");
+}
+
+const page = {
+  data: pagedData,
+  currentPage,
+  lastPage,
+  url: {
+    prev:
+      currentPage > 1
+        ? currentPage === 2
+          ? "/"
+          : `/${currentPage - 1}`
+        : undefined,
+    next: currentPage < lastPage ? `/${currentPage + 1}` : undefined,
+  },
+};
+---
+
+<Layout title={`CloudBlog | Page ${page.currentPage}`}>
+  <main class="my-16 flex flex-col gap-8">
+    {
+      page.data.length > 0 ? (
+        page.data.map((post: any) => (
+          <article class="flex flex-col group mb-8">
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2 uppercase tracking-widest text-text-mute font-bold text-sm">
+              <time datetime={new Date(post.data.published_at).toISOString()}>
+                {new Date(post.data.published_at).toLocaleDateString()}
+              </time>
+
+              {post.data.category_name && (
+                <a
+                  href={`/category/${post.data.category_slug}`}
+                  class="text-ui hover:text-text"
+                >
+                  {post.data.category_name}
+                </a>
+              )}
+
+              {post.data.tags && (
+                <div class="flex flex-row gap-3">
+                  {post.data.tags.split(",").map((tag: string) => (
+                    <a
+                      href={`/tags/${tag.trim()}`}
+                      class="hover:text-text transition-colors text-(--theme-color)"
+                    >
+                      #{tag.trim()}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+            <a href={`/${post.data.slug}`}>
+              <h2 class="text-4xl font-bold my-2">{post.data.title}</h2>
+              <p class="leading-relaxed font-thin text-xl">
+                {post.data.description || "No description available."}
+              </p>
+            </a>
+          </article>
+        ))
+      ) : (
+        <p class="empty">
+          No posts yet. <a href="/admin/editor">Create one?</a>
+        </p>
+      )
+    }
+
+    {
+      page.lastPage > 1 && (
+        <nav class="pagination">
+          <div class="page-info">
+            Page {page.currentPage} of {page.lastPage}
+          </div>
+          <div class="pagination-links">
+            {page.url.prev && (
+              <a href={page.url.prev} class="btn prev">
+                ← Previous
+              </a>
+            )}
+            {page.url.next && (
+              <a href={page.url.next} class="btn next">
+                Next →
+              </a>
+            )}
+          </div>
+        </nav>
+      )
+    }
+  </main>
+</Layout>

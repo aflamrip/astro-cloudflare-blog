@@ -1,0 +1,58 @@
+---
+import { getLiveCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+
+const { entries: allPosts } = await getLiveCollection("blog");
+
+// Count posts for each tag
+const tagCounts: Record<string, number> = {};
+(allPosts || []).forEach((post) => {
+  if (post.data.tags) {
+    post.data.tags.split(",").forEach((tag: string) => {
+      const name = tag.trim();
+      if (name) {
+        tagCounts[name] = (tagCounts[name] || 0) + 1;
+      }
+    });
+  }
+});
+
+const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+---
+
+<Layout title="All Tags">
+  <main class="my-16">
+    <header class="mb-12">
+      <h1
+        class="text-xs font-bold uppercase tracking-widest text-text-mute mb-2"
+      >
+        Explore
+      </h1>
+      <h2 class="text-5xl font-extrabold tracking-tighter">Tags</h2>
+    </header>
+
+    <div class="flex flex-wrap gap-4">
+      {
+        sortedTags.map(([tag, count]) => (
+          <a
+            href={`/tags/${tag}`}
+            class="group px-6 py-3 bg-border/20 rounded-2xl hover:bg-ui/10 transition-all border border-transparent hover:border-ui/30"
+          >
+            <span class="text-lg font-bold group-hover:text-ui transition-colors">
+              #{tag}
+            </span>
+            <span class="ml-2 text-xs font-black uppercase tracking-widest text-text-mute opacity-50 group-hover:opacity-100">
+              {count}
+            </span>
+          </a>
+        ))
+      }
+    </div>
+
+    {
+      sortedTags.length === 0 && (
+        <p class="text-text-mute italic">No tags found yet.</p>
+      )
+    }
+  </main>
+</Layout>
