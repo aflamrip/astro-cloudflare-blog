@@ -51,4 +51,6 @@ Edit the file `/wrangler.jsonc` to set up project binding.
 ],
 ```
 
+Push Database `npx wrangler d1 execute <DB_name> --remote --file=./schema.sql`
+
 Compile and deploy `bun astro build` and `bun wrangler deploy`
