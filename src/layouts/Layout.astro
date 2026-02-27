@@ -6,41 +6,48 @@ const { title } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ar" dir="rtl">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="generator" content={Astro.generator} />
+    
     <script is:inline>
       const applyTheme = () => {
-        const stored = localStorage.getItem("theme");
-        const theme =
-          stored ||
-          (window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
+        const theme = localStorage.getItem("theme") || 
+          (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
         document.documentElement.setAttribute("data-theme", theme);
       };
-
       applyTheme();
       document.addEventListener("astro:after-swap", applyTheme);
     </script>
 
-    <title>{title || "CloudBlog"}</title>
+    <title>{title || "CineCloud - أفلام ومسلسلات"}</title>
     <ClientRouter />
   </head>
-  <body>
-    <header class="flex justify-between items-center my-16">
-      <nav class="flex gap-4 items-center">
-        <a href="/" class="text-3xl">CloudBlog</a>
-        <a href="/admin/editor" class="text-(--color-text-mute)">Editor</a>
-      </nav>
-      <Themetoggle />
+  <body class="bg-(--color-bg) text-(--color-text) min-h-screen font-sans">
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-(--color-bg)/80 border-b border-(--color-text-mute)/10">
+      <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+        <nav class="flex gap-8 items-center">
+          <a href="/" class="text-2xl font-black tracking-tighter text-red-600 uppercase">CineCloud</a>
+          <div class="hidden md:flex gap-6 font-medium text-sm">
+            <a href="/" class="hover:text-red-500 transition-colors">الرئيسية</a>
+            <a href="/movies" class="hover:text-red-500 transition-colors">الأفلام</a>
+            <a href="/series" class="hover:text-red-500 transition-colors">المسلسلات</a>
+            <a href="/admin/editor" class="text-(--color-text-mute) hover:text-red-500">لوحة التحكم</a>
+          </div>
+        </nav>
+        <Themetoggle />
+      </div>
     </header>
-    <slot />
+
+    <main class="max-w-7xl mx-auto px-4 py-12">
+      <slot />
+    </main>
+
+    <footer class="text-center py-12 border-t border-(--color-text-mute)/10 mt-20 text-sm text-(--color-text-mute)">
+      &copy; 2026 CineCloud - منصة الأفلام السحابية
+    </footer>
   </body>
 </html>
