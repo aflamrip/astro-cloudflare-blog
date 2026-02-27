@@ -8,14 +8,14 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "dd",
-			"database_id": "xxxxxxxxxxxxxxxx",
+			"database_name": "md01",
+			"database_id": "7b646d61-e33e-422f-8ba4-ca3918bf1f6d",
 		},
 	],
 	"kv_namespaces": [
 		{
 			"binding": "KV",
-			"id": "xxxxxxxxxxxxxxxx",
+			"id": "e9b179f0837c4cf0be9c27fdd39c7e95",
 		},
 	],
 }
