@@ -23,7 +23,6 @@
     "@tiptap/pm": "^3.19.0",
     "@tiptap/starter-kit": "^3.19.0",
     "@types/alpinejs": "^3.13.11",
-    "@astrojs/check@0.9.7-beta.1,
     "astro": "6.0.0-beta.17",
     "highlight.js": "^11.11.1",
     "lowlight": "^3.3.0",
@@ -31,6 +30,8 @@
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.19"
+    "@astrojs/check": "0.9.7-beta.1",
+    "@tailwindcss/typography": "^0.5.19",
+    "typescript": "^5.7.0"
   }
 }
